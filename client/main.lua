@@ -47,10 +47,10 @@ local function DrawText3D(x, y, z, text)
     SetTextEntry("STRING")
     SetTextCentre(true)
     AddTextComponentString(text)
-    SetDrawOrigin(x,y,z, 0)
+    SetDrawOrigin(x, y, z, 0)
     DrawText(0.0, 0.0)
     local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
+    DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75)
     ClearDrawOrigin()
 end
 
@@ -62,24 +62,24 @@ local function DrawText3D2(coords, text)
     SetTextEntry("STRING")
     SetTextCentre(true)
     AddTextComponentString(text)
-    SetDrawOrigin(coords.x,coords.y,coords.z, 0)
+    SetDrawOrigin(coords.x, coords.y, coords.z, 0)
     DrawText(0.0, 0.0)
     local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
+    DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75)
     ClearDrawOrigin()
 end
 
 local function LoadAnimation(dict)
     RequestAnimDict(dict)
-	while not HasAnimDictLoaded(dict) do Wait(10) end
+    while not HasAnimDictLoaded(dict) do Wait(10) end
 end
 
 local function BringBackCar()
     DeleteVehicle(garbageVehicle)
-    if endBlip ~= nil then
+    if endBlip then
         RemoveBlip(endBlip)
     end
-    if deliveryBlip ~= nil then
+    if deliveryBlip then
         RemoveBlip(deliveryBlip)
     end
     garbageVehicle = nil
@@ -193,56 +193,56 @@ local function RunWorkLoop()
                             end
                             if IsControlJustPressed(0, 51) and hasBag then
                                 QBCore.Functions.Progressbar("deliverbag", Lang:t("info.progressbar"), 2000, false, true, {
-                                    disableMovement = true,
-                                    disableCarMovement = true,
-                                    disableMouse = false,
-                                    disableCombat = true,
-                                }, {}, {}, {}, function() -- Done
-                                    hasBag = false
-                                    -- Looks if you have delivered all bags
-                                    if (amountOfBags - 1) <= 0 then
-                                        QBCore.Functions.TriggerCallback('garbagejob:server:NextStop', function(hasMoreStops, nextStop, newBagAmount)
-                                            if hasMoreStops and nextStop ~= 0 then
-                                                -- Here he puts your next location and you are not finished working yet.
-                                                currentStop = nextStop
-                                                currentStopNum = currentStopNum + 1
-                                                amountOfBags = newBagAmount
-                                                SetGarbageRoute()
-                                                QBCore.Functions.Notify(Lang:t("info.all_bags"))
-                                                listen = false
-                                            else
-                                                if hasMoreStops and nextStop == currentStop then
-                                                    QBCore.Functions.Notify(Lang:t("info.depot_issue"))
-                                                    amountOfBags = 0
-                                                else
-                                                    -- You are done with work here.
-                                                    QBCore.Functions.Notify(Lang:t("info.done_working"))
-                                                    RemoveBlip(deliveryBlip)
-                                                    SetRouteBack()
-                                                    amountOfBags = 0
-                                                    listen = false
-                                                end
-                                            end
-                                        end, currentStop, currentStopNum, pos)
+                                        disableMovement = true,
+                                        disableCarMovement = true,
+                                        disableMouse = false,
+                                        disableCombat = true,
+                                    }, {}, {}, {}, function() -- Done
                                         hasBag = false
-                                    else
-                                        -- You haven't delivered all bags here
-                                        amountOfBags = amountOfBags - 1
-                                        if amountOfBags > 1 then
-                                            QBCore.Functions.Notify(Lang:t("info.bags_left", {value = amountOfBags}))
+                                        -- Looks if you have delivered all bags
+                                        if (amountOfBags - 1) <= 0 then
+                                            QBCore.Functions.TriggerCallback('garbagejob:server:NextStop', function(hasMoreStops, nextStop, newBagAmount)
+                                                    if hasMoreStops and nextStop ~= 0 then
+                                                        -- Here he puts your next location and you are not finished working yet.
+                                                        currentStop = nextStop
+                                                        currentStopNum = currentStopNum + 1
+                                                        amountOfBags = newBagAmount
+                                                        SetGarbageRoute()
+                                                        QBCore.Functions.Notify(Lang:t("info.all_bags"))
+                                                        listen = false
+                                                    else
+                                                        if hasMoreStops and nextStop == currentStop then
+                                                            QBCore.Functions.Notify(Lang:t("info.depot_issue"))
+                                                            amountOfBags = 0
+                                                        else
+                                                            -- You are done with work here.
+                                                            QBCore.Functions.Notify(Lang:t("info.done_working"))
+                                                            RemoveBlip(deliveryBlip)
+                                                            SetRouteBack()
+                                                            amountOfBags = 0
+                                                            listen = false
+                                                        end
+                                                    end
+                                                end, currentStop, currentStopNum, pos)
+                                            hasBag = false
                                         else
-                                            QBCore.Functions.Notify(Lang:t("info.bags_still", {value = amountOfBags}))
+                                            -- You haven't delivered all bags here
+                                            amountOfBags = amountOfBags - 1
+                                            if amountOfBags > 1 then
+                                                QBCore.Functions.Notify(Lang:t("info.bags_left", { value = amountOfBags }))
+                                            else
+                                                QBCore.Functions.Notify(Lang:t("info.bags_still", { value = amountOfBags }))
+                                            end
+                                            hasBag = false
                                         end
-                                        hasBag = false
-                                    end
 
-                                    DeliverAnim()
-                                    Wait(1500)
-                                    if TrucText then
-                                        exports['qb-core']:HideText()
-                                        TrucText = false
-                                    end
-                                end, function() -- Cancel
+                                        DeliverAnim()
+                                        Wait(1500)
+                                        if TrucText then
+                                            exports['qb-core']:HideText()
+                                            TrucText = false
+                                        end
+                                    end, function() -- Cancel
                                     QBCore.Functions.Notify(Lang:t("error.cancled"), "error")
                                 end)
 
@@ -268,7 +268,7 @@ local function CreateZone(x, y, z)
             name = "NewRouteWhoDis",
             debugPoly = false,
         })
-        
+
         PZone:onPlayerInOut(function(isPointInside)
             if isPointInside then
                 listen = true
@@ -288,7 +288,7 @@ end
 
 function SetGarbageRoute()
     local CurrentLocation = Config.Locations["trashcan"][currentStop]
-    if deliveryBlip ~= nil then
+    if deliveryBlip then
         RemoveBlip(deliveryBlip)
     end
     deliveryBlip = AddBlipForCoord(CurrentLocation.coords.x, CurrentLocation.coords.y, CurrentLocation.coords.z)
@@ -348,6 +348,7 @@ local function spawnPeds()
                         event = "qb-garbagejob:client:MainMenu",
                         label = 'Talk to Garbageman',
                         icon = 'fa-solid fa-recycle',
+                        job = "garbage",
                     }
                 },
                 distance = 2.0
@@ -356,7 +357,7 @@ local function spawnPeds()
             local options = current.zoneOptions
             if options then
                 local zone = BoxZone:Create(current.coords.xyz, options.length, options.width, {
-                    name = "zone_cityhall_"..ped,
+                    name = "zone_cityhall_" .. ped,
                     heading = current.coords.w,
                     debugPoly = false
                 })
@@ -398,25 +399,26 @@ RegisterNetEvent('qb-garbagejob:client:RequestRoute', function()
         if shouldContinue then
 
             local coords = Config.Locations["vehicle"].coords
-            QBCore.Functions.SpawnVehicle("trash2", function(veh)
+            QBCore.Functions.TriggerCallback('QBCore:Server:SpawnVehicle', function(netId)
+                local veh = NetToVeh(netId)
                 TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1) -- hopefully this fixes an issue if something is delayed they'll get crushed
                 SetVehicleEngineOn(veh, true, true)
-
                 garbageVehicle = veh
-                SetVehicleNumberPlateText(veh, "GARB"..tostring(math.random(1000, 9999)))
+                SetVehicleNumberPlateText(veh, "GARB" .. tostring(math.random(1000, 9999)))
                 SetEntityHeading(veh, coords.w)
                 exports['LegacyFuel']:SetFuel(veh, 100.0)
+                SetVehicleFixed(veh)
                 SetEntityAsMissionEntity(veh, true, true)
                 TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
                 currentStop = firstStop
                 currentStopNum = 1
                 amountOfBags = totalBags
                 SetGarbageRoute()
-                QBCore.Functions.Notify(Lang:t("info.deposit_paid", {value = Config.TruckPrice}))
+                QBCore.Functions.Notify(Lang:t("info.deposit_paid", { value = Config.TruckPrice }))
                 QBCore.Functions.Notify(Lang:t("info.started"))
-            end, coords, true)
+            end, Config.Vehicle, coords, true)
         else
-            QBCore.Functions.Notify(Lang:t("info.not_enough", {value = Config.TruckPrice}))
+            QBCore.Functions.Notify(Lang:t("info.not_enough", { value = Config.TruckPrice }))
         end
     end)
 end)
@@ -463,10 +465,8 @@ end)
 
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     playerJob = JobInfo
-    if playerJob.name == "garbage" then
-        if garbageBlip ~= nil then
-            RemoveBlip(garbageBlip)
-        end
+    if garbageBlip then
+        RemoveBlip(garbageBlip)
     end
     setupClient()
     spawnPeds()
@@ -474,7 +474,7 @@ end)
 
 AddEventHandler('onResourceStop', function(resource)
     if GetCurrentResourceName() == resource then
-        if garbageObject ~= nil then
+        if garbageObject then
             DeleteEntity(garbageObject)
             garbageObject = nil
         end
